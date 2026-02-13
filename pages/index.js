@@ -1,4 +1,93 @@
+import { useEffect } from 'react';
+
 export default function Home() {
+    useEffect(() => {
+        // Только на клиенте
+        let heartInterval;
+        let cryInterval;
+
+        function playMusic() {
+            const audio = document.getElementById("backgroundMusic");
+            audio.play();
+            document.getElementById("playMusicBtn").style.display = "none";
+        }
+
+        function createHearts() {
+            const container = document.body;
+            return setInterval(() => {
+                const heart = document.createElement("div");
+                heart.classList.add("heart");
+                heart.style.left = Math.random() * window.innerWidth + "px";
+                heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+                container.appendChild(heart);
+
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        window.chooseYes = function() {
+            document.getElementById("mainContainer").innerHTML = `
+                <h1>С Днём Святого Валентина, Вероника!</h1>
+                <p>Я так счастлив(-а), что ты рядом.<br>
+                   Ты — мой свет, моя любовь, моя валентинка.<br>
+                   Пусть этот день и вся жизнь будут наполнены счастьем и нежностью.</p>
+                <img src="/valentine.jpg" alt="Valentine" class="valentine-image">
+                <p><strong>С любовью ❤️</strong></p>
+            `;
+            document.querySelector('.buttons').classList.add('hidden');
+        };
+
+        window.chooseNo = function() {
+            clearInterval(heartInterval);
+            document.querySelectorAll('.heart').forEach(el => el.remove());
+
+            document.getElementById("mainContainer").innerHTML = `
+                <h1>Неправильный ответ</h1>
+                <div class="buttons">
+                    <button onclick="tryAgain()">Еще попытка</button>
+                </div>
+            `;
+            document.body.style.backgroundColor = '#add8e6';
+
+            const container = document.body;
+            cryInterval = setInterval(() => {
+                const cry = document.createElement("div");
+                cry.classList.add("cry");
+                cry.innerHTML = "😢";
+                cry.style.left = Math.random() * window.innerWidth + "px";
+                container.appendChild(cry);
+
+                setTimeout(() => {
+                    cry.remove();
+                }, 6000);
+            }, 300);
+        };
+
+        window.tryAgain = function() {
+            if (cryInterval) {
+                clearInterval(cryInterval);
+            }
+            document.querySelectorAll('.cry').forEach(el => el.remove());
+
+            document.getElementById("mainContainer").innerHTML = `
+                <h1>Будешь моей валентинкой?</h1>
+                <div class="buttons">
+                    <button onclick="chooseYes()">Да</button>
+                    <button onclick="chooseNo()">Нет</button>
+                </div>
+            `;
+            document.body.style.backgroundColor = '#ffe6f2';
+
+            heartInterval = createHearts();
+        };
+
+        window.onload = function() {
+            heartInterval = createHearts();
+        };
+    }, []);
+
     return (
         <>
             <style>{`
@@ -104,102 +193,16 @@ export default function Home() {
             <div className="container" id="mainContainer">
                 <h1>Будешь моей валентинкой?</h1>
                 <div className="buttons">
-                    <button onClick={chooseYes}>Да</button>
-                    <button onClick={chooseNo}>Нет</button>
+                    <button onClick={() => window.chooseYes && window.chooseYes()}>Да</button>
+                    <button onClick={() => window.chooseNo && window.chooseNo()}>Нет</button>
                 </div>
             </div>
 
-            <button id="playMusicBtn" onClick={playMusic}>🎵</button>
+            <button id="playMusicBtn" onClick={() => window.playMusic && window.playMusic()}>🎵</button>
 
             <audio id="backgroundMusic" loop>
                 <source src="/music.mp3" type="audio/mpeg" />
             </audio>
-
-            <script dangerouslySetInnerHTML={{ __html: `
-                let heartInterval;
-                let cryInterval;
-
-                function playMusic() {
-                    const audio = document.getElementById("backgroundMusic");
-                    audio.play();
-                    document.getElementById("playMusicBtn").style.display = "none";
-                }
-
-                function createHearts() {
-                    const container = document.body;
-                    return setInterval(() => {
-                        const heart = document.createElement("div");
-                        heart.classList.add("heart");
-                        heart.style.left = Math.random() * window.innerWidth + "px";
-                        heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
-                        container.appendChild(heart);
-
-                        setTimeout(() => {
-                            heart.remove();
-                        }, 6000);
-                    }, 300);
-                }
-
-                function chooseYes() {
-                    document.getElementById("mainContainer").innerHTML = \`
-                        <h1>С Днём Святого Валентина, Вероника!</h1>
-                        <p>Я так счастлив(-а), что ты рядом.<br>
-                           Ты — мой свет, моя любовь, моя валентинка.<br>
-                           Пусть этот день и вся жизнь будут наполнены счастьем и нежностью.</p>
-                        <img src="/valentine.jpg" alt="Valentine" class="valentine-image">
-                        <p><strong>С любовью ❤️</strong></p>
-                    \`;
-                    document.querySelector('.buttons').classList.add('hidden');
-                }
-
-                function chooseNo() {
-                    clearInterval(heartInterval);
-                    document.querySelectorAll('.heart').forEach(el => el.remove());
-
-                    document.getElementById("mainContainer").innerHTML = \`
-                        <h1>Неправильный ответ</h1>
-                        <div class="buttons">
-                            <button onclick="tryAgain()">Еще попытка</button>
-                        </div>
-                    \`;
-                    document.body.style.backgroundColor = '#add8e6';
-
-                    const container = document.body;
-                    cryInterval = setInterval(() => {
-                        const cry = document.createElement("div");
-                        cry.classList.add("cry");
-                        cry.innerHTML = "😢";
-                        cry.style.left = Math.random() * window.innerWidth + "px";
-                        container.appendChild(cry);
-
-                        setTimeout(() => {
-                            cry.remove();
-                        }, 6000);
-                    }, 300);
-                }
-
-                function tryAgain() {
-                    if (cryInterval) {
-                        clearInterval(cryInterval);
-                    }
-                    document.querySelectorAll('.cry').forEach(el => el.remove());
-
-                    document.getElementById("mainContainer").innerHTML = \`
-                        <h1>Будешь моей валентинкой?</h1>
-                        <div class="buttons">
-                            <button onclick="chooseYes()">Да</button>
-                            <button onclick="chooseNo()">Нет</button>
-                        </div>
-                    \`;
-                    document.body.style.backgroundColor = '#ffe6f2';
-
-                    heartInterval = createHearts();
-                }
-
-                window.onload = function() {
-                    heartInterval = createHearts();
-                };
-            `}} />
         </>
     );
 }
