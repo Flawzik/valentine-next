@@ -1,16 +1,28 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function Home() {
+    const audioRef = useRef(null);
+
     useEffect(() => {
         // Только на клиенте
         let heartInterval;
         let cryInterval;
 
         function playMusic() {
-            const audio = document.getElementById("backgroundMusic");
-            audio.play();
-            document.getElementById("playMusicBtn").style.display = "none";
+            const audio = audioRef.current;
+            if (audio) {
+                audio.play()
+                    .then(() => {
+                        document.getElementById("playMusicBtn").style.display = "none";
+                    })
+                    .catch((error) => {
+                        console.error("Playback failed:", error);
+                        alert("Не удалось запустить музыку. Возможно, браузер заблокировал автовоспроизведение.");
+                    });
+            }
         }
+
+        window.playMusic = playMusic;
 
         function createHearts() {
             const container = document.body;
@@ -30,11 +42,11 @@ export default function Home() {
         window.chooseYes = function() {
             document.getElementById("mainContainer").innerHTML = `
                 <h1>С Днём Святого Валентина, Вероника!</h1>
-                <p>Никогда не думал что смогу влюбиться в человека так сильно.<br>
-                   Ты — мой муза, моя любовь, моя валентинка, и просто МОЯ!.<br>
-                                        ЛЮБЛЮ ТЕБЯ,ЗАЯ🤍.</p>
+                <p>Я так счастлив(-а), что ты рядом.<br>
+                   Ты — мой свет, моя любовь, моя валентинка.<br>
+                   Пусть этот день и вся жизнь будут наполнены счастьем и нежностью.</p>
                 <img src="/valentine.jpg" alt="Valentine" class="valentine-image">
-                <p><strong>🐇</strong></p>
+                <p><strong>С любовью ❤️</strong></p>
             `;
             document.querySelector('.buttons').classList.add('hidden');
         };
@@ -86,7 +98,8 @@ export default function Home() {
         window.onload = function() {
             heartInterval = createHearts();
         };
-    }, []);
+
+    }, []); // Пустой массив зависимостей означает выполнение только при монтировании
 
     return (
         <>
@@ -190,6 +203,10 @@ export default function Home() {
                 }
             `}</style>
 
+            <audio ref={audioRef} loop preload="auto">
+                <source src="/music.mp3" type="audio/mpeg" />
+            </audio>
+
             <div className="container" id="mainContainer">
                 <h1>Будешь моей валентинкой?</h1>
                 <div className="buttons">
@@ -199,10 +216,6 @@ export default function Home() {
             </div>
 
             <button id="playMusicBtn" onClick={() => window.playMusic && window.playMusic()}>🎵</button>
-
-            <audio id="backgroundMusic" loop>
-                <source src="/music.mp3" type="audio/mpeg" />
-            </audio>
         </>
     );
 }
